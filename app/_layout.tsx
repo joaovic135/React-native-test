@@ -1,11 +1,22 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import '../global.css';
 import { useColorScheme } from '@/components/useColorScheme';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 1000 * 60,
+    },
+  },
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -13,7 +24,7 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
+  // Ensure that reloading on `/add-meal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
@@ -40,7 +51,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootLayoutNav />
+    </QueryClientProvider>
+  );
 }
 
 function RootLayoutNav() {
@@ -50,7 +65,15 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="(modals)/add-meal"
+          options={{
+            presentation: "modal",
+            title: "Add Meal",
+            headerStyle: { backgroundColor: "#ecedef" },
+            headerTintColor: "#1B3C35",
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );
